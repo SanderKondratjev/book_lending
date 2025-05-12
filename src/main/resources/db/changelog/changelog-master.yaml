@@ -1,0 +1,39 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001
+      author: sander
+      changes:
+        - sqlFile:
+            path: db/sql/user.sql
+            relativeToChangelogFile: false
+        - sqlFile:
+            path: db/sql/book.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: 002
+      author: sander
+      changes:
+        - sqlFile:
+            path: db/sql/reservation.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: 003
+      author: sander
+      changes:
+        - sqlFile:
+            path: db/sql/user-password-hash.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: 004
+      author: sander
+      changes:
+        - sqlFile:
+            path: db/sql/reservation-start-end-date.sql
+            relativeToChangelogFile: false
+  - changeSet:
+      id: 005
+      author: sander
+      changes:
+        - sqlFile:
+            path: db/sql/demo-user-sample-books.sql
+            relativeToChangelogFile: false
