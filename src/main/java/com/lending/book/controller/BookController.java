@@ -67,14 +67,4 @@ public class BookController {
         Book savedBook = bookRepository.save(book);
         return ResponseEntity.ok(savedBook);
     }
-
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a book by ID")
-    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-        if (!bookRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        bookRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
 }
