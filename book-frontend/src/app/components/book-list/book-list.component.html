@@ -1,8 +1,15 @@
 <h2>Book List</h2>
+
+<div>
+    <label for="search">Search by Title:</label>
+    <input id="search" [(ngModel)]="searchTitle" placeholder="Enter book title" />
+    <button (click)="searchBooks()">Search</button>
+</div>
+
 <ul>
-  <li *ngFor="let book of books">
-    <strong>{{ book.title }}</strong> by {{ book.author }}<br />
-    {{ book.description }}<br />
-    <button (click)="reserve(book.id)">Reserve</button>
-  </li>
+    <li *ngFor="let book of books">
+        <strong>{{ book.title }}</strong> by {{ book.author }}<br />
+        {{ book.description }}<br />
+        <button (click)="reserve(book.id)">Reserve</button>
+    </li>
 </ul>

@@ -23,13 +23,22 @@ export class BookService {
 
   constructor(private http: HttpClient) {}
 
-  getBooks(token: string): Observable<Book[]> {
+  getBooks(token: string, title: string): Observable<Book[]> {
     const headers = {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     };
 
-    return this.http.get<Book[]>(this.baseUrl, { headers });
+    let url = '/api/books';
+    if (title) {
+      url += `?title=${title}`;
+    }
+
+    return this.http.get<Book[]>(url, { headers });
+  }
+
+  addBook(book: any, options: { headers: any }): Observable<Book> {
+    return this.http.post<Book>('/api/books', book, options);
   }
 
   reserveBook(reservation: ReservationRequest, options: { headers: any }): Observable<any> {

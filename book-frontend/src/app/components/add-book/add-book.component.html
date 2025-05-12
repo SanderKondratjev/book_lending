@@ -1,0 +1,17 @@
+<h2>Add a new book</h2>
+<form (ngSubmit)="addBook()">
+  <label for="title">Title:</label>
+  <input id="title" [(ngModel)]="title" name="title" required />
+
+  <label for="author">Author:</label>
+  <input id="author" [(ngModel)]="author" name="author" required />
+
+  <label for="description">Description:</label>
+  <textarea id="description" [(ngModel)]="description" name="description" required></textarea>
+
+  <button *ngIf="canAddBook()" type="submit">Add Book</button>
+</form>
+
+<div *ngIf="!canAddBook()">
+  <p>You don't have permission to add a book. Only Lenders or Users with Both roles can add books.</p>
+</div>
