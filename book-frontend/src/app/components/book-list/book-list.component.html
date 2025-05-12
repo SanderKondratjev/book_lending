@@ -10,6 +10,7 @@
     <li *ngFor="let book of books">
         <strong>{{ book.title }}</strong> by {{ book.author }}<br />
         {{ book.description }}<br />
-        <button (click)="reserve(book.id)">Reserve</button>
+        <button *ngIf="!isLender" (click)="reserve(book.id)">Reserve</button>
+        <p *ngIf="isLender">You cannot reserve books as a lender.</p>
     </li>
 </ul>

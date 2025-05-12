@@ -16,37 +16,73 @@ export class AddBookComponent {
   title = '';
   author = '';
   description = '';
-  userId = 1; // Make sure this is set properly (or dynamic)
+  userId = 1;
   errorMessage = '';
 
-  constructor(public authService: AuthService, private bookService: BookService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private bookService: BookService,
+    private router: Router
+  ) {}
 
-  addBook(): void {
-    const token = localStorage.getItem('jwt');
+  async addBook(): Promise<void> {
+    if (!this.canAddBook()) {
+      return;
+    }
 
-    // Create the request body
-    const request = {
+    const token = this.getToken();
+    if (!token) {
+      this.handleError('No authentication token found.');
+      return;
+    }
+
+    const bookRequest = this.createBookRequest();
+    await this.sendBookRequest(bookRequest, token);
+  }
+
+  private createBookRequest(): any {
+    return {
       title: this.title,
       author: this.author,
       description: this.description,
       ownerId: this.userId
     };
+  }
 
-    const headers = {
+  private async sendBookRequest(bookRequest: any, token: string): Promise<void> {
+    const headers = this.createHeaders(token);
+
+    try {
+      const book = await this.bookService.addBook(bookRequest, { headers }).toPromise();
+      this.handleSuccess(book);
+    } catch (err) {
+      this.handleError(err);
+    }
+  }
+
+  private createHeaders(token: string): any {
+    return {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     };
+  }
 
-    this.bookService.addBook(request, { headers }).subscribe({
-      next: (book) => {
-        console.log('Book added:', book);
-        this.router.navigate(['/books']);
-      },
-      error: (err) => {
-        this.errorMessage = 'Failed to add book: ' + err.message;
-        console.error('Add book error:', err);
-      }
+  private getToken(): string | null {
+    return localStorage.getItem('jwt');
+  }
+
+  private handleSuccess(book: any): void {
+    console.log('Book added:', book);
+    this.router.navigate(['/books']).then(() => {
+      console.log('Navigation successful');
+    }).catch((error) => {
+      console.error('Navigation failed:', error);
     });
+  }
+
+  private handleError(err: any): void {
+    this.errorMessage = `Failed to add book: ${err.message}`;
+    console.error('Add book error:', err);
   }
 
   canAddBook(): boolean {
