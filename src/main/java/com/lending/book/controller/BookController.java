@@ -3,6 +3,7 @@ package com.lending.book.controller;
 import com.lending.book.dto.BookDto;
 import com.lending.book.entity.Book;
 import com.lending.book.entity.User;
+import com.lending.book.enums.Role;
 import com.lending.book.repository.BookRepository;
 import com.lending.book.repository.UserRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +11,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,6 +41,15 @@ public class BookController {
     @Operation(summary = "Add a book to be shared")
     public ResponseEntity<Book> addBook(@RequestBody BookDto bookDto) {
         log.info("Adding book: {}", bookDto.getTitle());
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if (user.getRole() != Role.LENDER && user.getRole() != Role.BOTH) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+
         if (bookDto.getOwnerId() == null) {
             return ResponseEntity.badRequest().body(null);
         }

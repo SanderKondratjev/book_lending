@@ -28,7 +28,7 @@ public class AuthController {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         if (passwordEncoder.matches(loginDto.getPassword(), user.getPasswordHash())) {
-            String token = jwtUtil.generateToken(loginDto.getUsername());
+            String token = jwtUtil.generateToken(loginDto.getUsername(), user.getRole().name());
             return ResponseEntity.ok(token);
         } else {
             return ResponseEntity.status(401).body("Invalid credentials");

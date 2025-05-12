@@ -36,19 +36,32 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 User user = userRepository.findByUsername(username)
                         .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-                if (user.getRole() == Role.BORROWER || user.getRole() == Role.BOTH) {
-                    UsernamePasswordAuthenticationToken auth =
-                            new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
-                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                } else {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.getWriter().write("You don't have permission to perform this action");
-                    return;
+                if (request.getRequestURI().contains("/api/books")) {
+                    if (bookEndPointCheck(user.getRole() == Role.BORROWER || user.getRole() == Role.LENDER || user.getRole() == Role.BOTH, username, request, response, "You don't have permission to view books"))
+                        return;
+                }
+
+                if (request.getRequestURI().contains("/api/books") && request.getMethod().equals("POST")) {
+                    if (bookEndPointCheck(user.getRole() == Role.LENDER || user.getRole() == Role.BOTH, username, request, response, "You don't have permission to add books"))
+                        return;
                 }
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private static boolean bookEndPointCheck(boolean user, String username, HttpServletRequest request, HttpServletResponse response, String s) throws IOException {
+        if (user) {
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
+            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(auth);
+        } else {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write(s);
+            return true;
+        }
+        return false;
     }
 }
 
