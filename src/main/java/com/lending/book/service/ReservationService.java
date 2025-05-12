@@ -5,6 +5,7 @@ import com.lending.book.entity.Book;
 import com.lending.book.entity.Reservation;
 import com.lending.book.entity.User;
 import com.lending.book.enums.ReservationStatus;
+import com.lending.book.enums.Role;
 import com.lending.book.repository.BookRepository;
 import com.lending.book.repository.ReservationRepository;
 import com.lending.book.repository.UserRepository;
@@ -12,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 
 @Service
@@ -22,9 +24,14 @@ public class ReservationService {
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
 
-    public Reservation createReservation(ReservationDto dto) {
+    public Reservation createReservation(ReservationDto dto) throws AccessDeniedException {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if (user.getRole() != Role.BORROWER && user.getRole() != Role.BOTH) {
+            throw new AccessDeniedException("You are not authorized to make a reservation");
+        }
+
         Book book = bookRepository.findById(dto.getBookId())
                 .orElseThrow(() -> new EntityNotFoundException("Book not found"));
 
@@ -42,3 +49,4 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 }
+

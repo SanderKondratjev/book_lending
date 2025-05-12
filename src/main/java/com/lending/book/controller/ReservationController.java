@@ -1,20 +1,19 @@
 package com.lending.book.controller;
 
 import com.lending.book.dto.ReservationDto;
-import com.lending.book.entity.Book;
 import com.lending.book.entity.Reservation;
-import com.lending.book.entity.User;
 import com.lending.book.enums.ReservationStatus;
-import com.lending.book.repository.BookRepository;
 import com.lending.book.repository.ReservationRepository;
-import com.lending.book.repository.UserRepository;
 import com.lending.book.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.nio.file.AccessDeniedException;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -28,7 +27,12 @@ public class ReservationController {
     @PostMapping
     @Operation(summary = "Create a reservation")
     public ResponseEntity<Reservation> reserveBook(@RequestBody ReservationDto dto) {
-        return ResponseEntity.ok(reservationService.createReservation(dto));
+        try {
+            Reservation reservation = reservationService.createReservation(dto);
+            return ResponseEntity.ok(reservation);
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
     }
 
     @PatchMapping("/{id}/cancel")
