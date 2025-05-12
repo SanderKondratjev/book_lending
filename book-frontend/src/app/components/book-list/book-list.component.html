@@ -1,0 +1,8 @@
+<h2>Book List</h2>
+<ul>
+  <li *ngFor="let book of books">
+    <strong>{{ book.title }}</strong> by {{ book.author }}<br />
+    {{ book.description }}<br />
+    <button (click)="reserve(book.id)">Reserve</button>
+  </li>
+</ul>
