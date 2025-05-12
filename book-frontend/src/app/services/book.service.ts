@@ -23,11 +23,16 @@ export class BookService {
 
   constructor(private http: HttpClient) {}
 
-  getBooks(): Observable<Book[]> {
-    return this.http.get<Book[]>(this.baseUrl);
+  getBooks(token: string): Observable<Book[]> {
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+
+    return this.http.get<Book[]>(this.baseUrl, { headers });
   }
 
-  reserveBook(reservation: ReservationRequest): Observable<any> {
-    return this.http.post('/api/reservations', reservation);
+  reserveBook(reservation: ReservationRequest, options: { headers: any }): Observable<any> {
+    return this.http.post('/api/reservations', reservation, options);
   }
 }

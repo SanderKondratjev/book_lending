@@ -12,27 +12,40 @@ import { ReservationRequest } from '../../services/book.service';
 })
 export class BookListComponent implements OnInit {
   books: Book[] = [];
-  userId = 1; // Temporary until login is implemented
+  userId = 1;
 
   constructor(private bookService: BookService) {}
 
   ngOnInit(): void {
-    this.bookService.getBooks().subscribe({
-      next: (data: Book[]) => this.books = data,
-      error: (err: any) => console.error('Failed to fetch books', err)
-    });
+    const token = localStorage.getItem('jwt');
+
+    if (token) {
+      this.bookService.getBooks(token).subscribe({
+        next: (data: Book[]) => this.books = data,
+        error: (err: any) => console.error('Failed to fetch books', err)
+      });
+    } else {
+      alert('You are not authenticated.');
+    }
   }
 
+
   reserve(bookId: number): void {
+    const token = localStorage.getItem('jwt');
     const request: ReservationRequest = {
       bookId: bookId,
       userId: this.userId,
       endDate: null
     };
 
-    this.bookService.reserveBook(request).subscribe({
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+
+    this.bookService.reserveBook(request, { headers }).subscribe({
       next: () => alert('Reservation successful'),
-      error: err => alert('Reservation failed')
+      error: err => alert('Reservation failed: ' + err.message)
     });
   }
 }
